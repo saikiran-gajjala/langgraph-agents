@@ -10,9 +10,11 @@ class LLMManager:
         try:
             logger.info("Initializing LLMManager")
             self.llm = ChatGroq(
-                model="llama-3.1-70b-versatile",
+                model=os.getenv("GROQ_MODEL"),
                 temperature=0.0,
                 max_retries=2,
+                streaming=True,
+                verbose=True,
             )
             logger.info("LLMManager initialized successfully")
         except Exception as e:
