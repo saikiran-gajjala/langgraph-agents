@@ -30,7 +30,7 @@ text2NoSqlTools = [
         name="GetMovies",
         func=get_movies,
         description="""
-        Gets information about the movies, ratings, plot/story, cast/actors, and genres based on the user input.
+        Gets information about the movies, ratings, plot or story, cast or actors, and genres based on the user input.
         Args:
             query (str): The user input to send. Accepts user input directly without modification.
         Returns:

@@ -1,10 +1,29 @@
-from langchain_core.prompts import ChatPromptTemplate
-from langchain.prompts import PromptTemplate
+from langchain.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate, MessagesPlaceholder
 from datetime import datetime
 from bson import json_util
 from agents.logger import setup_logger
 
 logger = setup_logger(__name__)
+examples = """
+        Input1: Get me movies with an IMDb rating above 8 and more than 10,000 votes.
+        Output1: [ { "$match": { "imdb.rating": { "$gt": 8 }, "imdb.votes": { "$gt": 10000 } } } ]
+
+        Input2: Can you list movies that are in the 'Action' and 'Adventure' genres?
+        Output2: [ { "$match": { "genres": { "$all": ["Action", "Adventure"] } } } ]
+        
+        Input3: What is the average IMDb rating for 'Comedy' genre movies?
+        Output3: [ { "$match": { "genres": "Comedy" } }, { "$group": { "_id": null, "averageRating": { "$avg": "$imdb.rating" } } } ]
+        
+        Input4: Find me movies that feature 'A.C. Abadie' and belong to the 'Western' genre and also fetch poster and plot of the movies
+        Output4: [ { "$match": { "cast": "A.C. Abadie", "genres": "Western" } }, { "$project": { "poster": 1, "plot": 1 } } ]
+        
+        Input5: Can you get me the latest movies with a Rotten Tomatoes critic rating above 7 and a viewer rating above 4.
+        Output5: [ { "$match": { "tomatoes.critic.rating": { "$gt": 7 }, "tomatoes.viewer.rating": { "$gt": 4 } } }, { "$sort": { "lastupdated": -1 } } ]
+        
+        Input6: Show me movies from the 2000s that have won at least 3 awards.
+        Output6: [ { "$match": { "year": { "$gte": 2000, "$lt": 2010 }, "awards.wins": { "$gte": 3 } } } ]
+
+"""
 movies_collection_schema = """
             - **_id** (Unique Identifier): A unique identifier for each movie.  
             - **plot** (Short Storyline): A brief summary of the movie's plot.  
@@ -46,71 +65,60 @@ movies_collection_schema = """
     """
 
 movies_mongodb_prompt = """You are an intelligent AI assistant who is expert in transforming natural language questions into mongodb aggregation pipeline queries.
-      Your task is to accurately generate MongoDB aggregation queries using the provided schema.
+      Your task is to accurately generate MongoDB aggregation pipeline using the provided schema.
     **Schema Description**:
        The mentioned mongodb collection talks about various movies and their details.
        The schema for this document represents the structure of the data, describing various properties related to the movies, ratings, plot/story, cast/actors and genres.
-   
     {movies_collection_schema}
     
     **Examples**:
-        Input1: Get me movies with an IMDb rating above 8 and more than 10,000 votes.
-        Output1: { "$match": { "imdb.rating": { "$gt": 8 }, "imdb.votes": { "$gt": 10000 } } }
-
-        Input2: Can you list movies that are in the 'Action' and 'Adventure' genres?
-        Output2: { "$match": { "genres": { "$all": ["Action", "Adventure"] } } }
-        
-        Input3: What is the average IMDb rating for 'Comedy' genre movies?
-        Output3: [ { "$match": { "genres": "Comedy" } }, { "$group": { "_id": null, "averageRating": { "$avg": "$imdb.rating" } } } ]
-        
-        Input4: Find me movies that feature 'A.C. Abadie' and belong to the 'Western' genre and also fetch poster and plot of the movies
-        Output4: [ { "$match": { "cast": "A.C. Abadie", "genres": "Western" } }, { "$project": { "poster": 1, "plot": 1 } } ]
-        
-        Input5: Can you get me the latest movies with a Rotten Tomatoes critic rating above 7 and a viewer rating above 4.
-        Output5: [ { "$match": { "tomatoes.critic.rating": { "$gt": 7 }, "tomatoes.viewer.rating": { "$gt": 4 } } }, { "$sort": { "lastupdated": -1 } } ]
-        
-        Input6: Show me movies from the 2000s that have won at least 3 awards.
-        Output6: [ { "$match": { "year": { "$gte": 2000, "$lt": 2010 }, "awards.wins": { "$gte": 3 } } } ]
-        
+    {examples}
     **Important Instructions**:
     - All dates must be in ISODate bson type and don't use '$date' in queries.
-    - You have to just return the query as to use in aggregation pipeline nothing else.
-    - Always exclude or project the redundant fields in the query and must include only the required fields, fields in $match stage
-    - Always generate the query with only the required fields needed based on the user question: {user_question}.
-    
-    Input: {user_question}
-    Today's date is {present_date}
-    Previous conversation history: {movies_chat_history}
-
+    - **You must return the query as to use in aggregation pipeline nothing else.No additional explanations or text.**
+    - Always exclude or project redundant fields by using $project stage in the pipeline and only include the required fields, fields in $match stage
+    - If the user question requests a count of matching documents, use the $count stage appropriately.
+    - Always limit the number of documents returned in the query to 20 using the $limit stage.
     """
 
 
-def get_text2nosql_prompt():
-    query_with_prompt_template = PromptTemplate(
-        template=movies_mongodb_prompt,
-        input_variables=["user_question", "collection_schema"]
-    ).partial(present_date=datetime.now())
-    return query_with_prompt_template
-
-
-# def get_text2nosql_prompt(inspection_tools):
-#     prompt = ChatPromptTemplate.from_messages(
-#         [
-#             (
-#                 "system",
-#                 """
-#                     You are a helpful assistant that quickly evaluates user input and selects appropriate tools to generate a response efficiently. Format the output in CommonMark Markdown, using:
-#                     - Headers: Use ## for titles and section headers.
-#                     - Text: Organize into paragraphs, bullet points, tables, and bold text as needed.
-#                     - Media: Embed images, links, or URLs as appropriate for clarity.
-#                     - etc.
-#                     Ensure a concise, accurate response.
-#                     The current date is {present_date}.
-#                 """,
-#             ),
-#             ("placeholder", "{chat_history}"),
-#             ("human", "{input}"),
-#             ("placeholder", "{agent_scratchpad}"),
-#         ]
+# def get_movies_collection_prompt():
+#     query_with_prompt_template = PromptTemplate(
+#         template=movies_mongodb_prompt,
+#         input_variables=["user_question", "movies_collection_schema"]
 #     ).partial(present_date=datetime.now())
-#     return prompt
+#     return query_with_prompt_template
+
+
+def get_movies_collection_prompt():
+    prompt = ChatPromptTemplate.from_messages(
+        [
+          SystemMessagePromptTemplate.from_template(movies_mongodb_prompt),
+          MessagesPlaceholder(variable_name="chat_history"),
+          HumanMessagePromptTemplate.from_template("{user_question}")
+        ])
+    return prompt
+
+
+def get_text2nosql_prompt():
+    prompt = ChatPromptTemplate.from_messages(
+        [
+            (
+                "system",
+                """
+                    You are a helpful assistant that quickly evaluates user input and selects appropriate tools to generate a response efficiently. Format the output in CommonMark Markdown, using:
+                    - Headers: Use ## for titles and section headers.
+                    - Text: Organize into paragraphs, bullet points, tables, and bold text as needed.
+                    - Media: Embed images, links, or URLs as appropriate for clarity.
+                    - etc.
+                    Ensure a concise, accurate response.
+                    The current date is {present_date}.
+                """,
+            ),
+            ("placeholder", "{chat_history}"),
+            ("human", "{input}"),
+            ("placeholder", "{agent_scratchpad}"),
+        ]
+    )
+    prompt = prompt.partial(present_date=datetime.now().strftime("%Y-%m-%d"))
+    return prompt

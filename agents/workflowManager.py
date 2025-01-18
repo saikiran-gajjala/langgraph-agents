@@ -1,22 +1,27 @@
 from typing import Literal
 from langgraph.graph import StateGraph, END
+from agents.mongodb_retriever import get_movies
+from prompts.mongoDB_movies_Prompt import get_text2nosql_prompt
 from state import MultiAgentState
 from llmManager import LLMManager
 from langchain_core.messages import HumanMessage
 from langchain_core.runnables.graph import MermaidDrawMethod
 from tools.text2NoSqlTools import text2NoSqlTools
 from langchain.agents import AgentExecutor, create_tool_calling_agent
-from prompts.mongoDB_movies_Prompt import get_text2nosql_prompt
 from langgraph.checkpoint.memory import MemorySaver
 from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_core.chat_history import BaseChatMessageHistory
 from agents.logger import setup_logger
 import os
-import ntpath
+from langchain.memory import ConversationSummaryMemory
+from langchain_core.runnables.history import RunnableWithMessageHistory
+from langchain.memory import ChatMessageHistory
 
 logger = setup_logger(__name__)
 
 store = {}
+session_id = "movie-session"
+text2nosql_memory = ChatMessageHistory(session_id=session_id)
 
 
 class WorkflowManager:
@@ -25,6 +30,8 @@ class WorkflowManager:
             logger.info("Initializing WorkflowManager")
             self.llm_manager = llm_manager
             self.llm = llm_manager.llm
+            self.memory = ConversationSummaryMemory(
+                llm=self.llm, input_key="input", memory_key="chat_history")
             logger.info("WorkflowManager initialized successfully")
         except Exception as e:
             logger.error(f"Error initializing WorkflowManager: {e}")
@@ -41,7 +48,7 @@ class WorkflowManager:
                 f"Processing inspection node for question: {state['question']}")
             text2NoSqlAgent = create_tool_calling_agent(
                 llm=self.llm,
-                prompt=get_text2nosql_prompt(text2NoSqlTools),
+                prompt=get_text2nosql_prompt(),
                 tools=text2NoSqlTools,
             )
             text2nosql_agent_executor = AgentExecutor(
@@ -51,9 +58,17 @@ class WorkflowManager:
                 handle_parsing_errors=True,
                 max_iterations=10,
                 return_intermediate_steps=False)
-
-            response = text2nosql_agent_executor.invoke(
-                {"input": [HumanMessage(state['question'])]})
+            agent_with_chat_history = RunnableWithMessageHistory(
+                text2nosql_agent_executor,
+                # This is needed because in most real world scenarios, a session id is needed
+                # It isn't really used here because we are using a simple in memory ChatMessageHistory
+                lambda session_id: text2nosql_memory,
+                input_messages_key="input",
+                history_messages_key="chat_history",
+            )
+            response = agent_with_chat_history.invoke(
+                {"input": [HumanMessage(state['question'])]},
+                config={"configurable": {"session_id": session_id}})
             return {'answer': response["output"]}
         except Exception as e:
             logger.error(f"Error in text2NoSql_node: {e}")
@@ -78,7 +93,8 @@ class WorkflowManager:
             logger.info("Generating workflow graph")
             memory = MemorySaver()
             enableDebugging = os.getenv("ENABLE_DEBUGGING") == "true"
-            graph = self.create_workflow().compile(checkpointer=memory, debug=enableDebugging)
+            graph = self.create_workflow().compile(
+                checkpointer=memory, debug=enableDebugging)
             graph.name = "Text To NoSQL Graph"
             # Draw the graph and get the bytes
             image_bytes = graph.get_graph().draw_mermaid_png(

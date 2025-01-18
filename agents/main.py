@@ -69,12 +69,11 @@ async def runQuery(query: Query) -> QueryResponse:
         finalResponse = QueryResponse(answer='', chart='', reviewImage=None)
         config = {"configurable": {"thread_id": "1"}, "recursion_limit": 100}
         input = {"question": query.query}
-        # state = graph.get_state(config)
         for stream_data in graph.stream(input, config):
             if "__end__" not in stream_data:
                 response.append(stream_data)
                 node_response = (
-                    stream_data.get('text2NoSql_node') 
+                    stream_data.get('text2NoSql_node')
                 )
                 finalResponse.answer = node_response.get('answer')
 
