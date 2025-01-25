@@ -2,7 +2,6 @@
 __pycache__/
 *.py[cod]
 *$py.class
-node_modules/
 # C extensions
 *.so
 
@@ -136,4 +135,7 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+
+node_modules/
 Frontend/node_modules/
+package-lock.json
