@@ -1,6 +1,6 @@
 .rcb-chat-header-container {
   background-image: none !important;
-  background-color: #313131;
+  background-color: #13df68;
   direction: ltr;
   height: 2.6rem;
 }
@@ -36,13 +36,22 @@
 }
 
 :root {
-  --chat-window-max-width: 30%;
-  --chat-input-window-min-height: 38px;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
-
+.rcb-window-embedded .rcb-chat-window {
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 100%;
+  position: fixed !important;
+}
 .rcb-chat-window {
   border: 1px solid gray;
-  background-color: #282828;
+  background-color: #020202;
   font-size: smaller !important;
   height: 96vh;
   overflow: auto;
@@ -53,7 +62,7 @@
 }
 
 .rcb-chat-input {
-  background-color: #282828;
+  background-color: #000000;
   direction: ltr;
 }
 

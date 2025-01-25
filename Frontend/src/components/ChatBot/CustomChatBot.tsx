@@ -61,7 +61,6 @@ const CustomChatBot = () => {
   }
 
   type ApiResponse = {
-    reviewImage: any;
     chart: string;
     answer: string;
   };
@@ -76,7 +75,7 @@ const CustomChatBot = () => {
     try {
       const response = (await fetchResponse(params.userInput)) as ApiResponse;
 
-     if (response?.reviewImage && response?.answer) {
+     if (response?.answer) {
         setcurrComp(
           response.answer ||
             "Unable to answer your query. Could you try again with more information?"

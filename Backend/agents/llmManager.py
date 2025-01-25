@@ -1,33 +1,41 @@
 from langchain_core.prompts import ChatPromptTemplate
 from agents.logger import setup_logger
 from langchain_groq import ChatGroq
+from langchain_openai import AzureChatOpenAI, ChatOpenAI
 import os
+import getpass
 
 logger = setup_logger(__name__)
-
+if "OPENAI_API_KEY" not in os.environ:
+    os.environ["OPENAI_API_KEY"] = getpass.getpass("Enter your OpenAI API key: ")
+    
 class LLMManager:
     def __init__(self):
         try:
             logger.info("Initializing LLMManager")
-            self.llm = ChatGroq(
-                model=os.getenv("GROQ_MODEL"),
-                temperature=0.0,
-                max_retries=2,
-                streaming=True,
-                verbose=True,
-            )
+            # self.llm = ChatGroq(
+            #     model=os.getenv("GROQ_MODEL"),
+            #     temperature=0.0,
+            #     max_retries=2,
+            #     streaming=True,
+            #     verbose=True,
+            # )
+            # self.llm = ChatOpenAI(
+            #         temperature=0,
+            #         model="gpt-4o-mini",
+            #         max_tokens=None,
+            #         timeout=None,
+            #         max_retries=2,
+            #     )
+            self.llm = AzureChatOpenAI(
+                    temperature=0,
+                    azure_deployment=os.getenv('OPENAI_DEPLOYMENT_NAME'),
+                    azure_endpoint=os.getenv('OPENAI_DEPLOYMENT_ENDPOINT'),
+                    api_key=os.getenv('OPENAI_API_KEY'),
+                    api_version=os.getenv('OPENAI_DEPLOYMENT_VERSION'),
+                    streaming=True
+                )
             logger.info("LLMManager initialized successfully")
         except Exception as e:
             logger.error(f"Error initializing LLMManager: {e}")
-            raise
-
-    def invoke(self, prompt: ChatPromptTemplate, **kwargs) -> str:
-        try:
-            logger.info(f"Invoking LLM with prompt: {prompt}")
-            messages = prompt.format_messages(**kwargs)
-            response = self.llm.invoke(messages)
-            logger.info(f"LLM response: {response.content}")
-            return response.content
-        except Exception as e:
-            logger.error(f"Error invoking LLM: {e}")
             raise
