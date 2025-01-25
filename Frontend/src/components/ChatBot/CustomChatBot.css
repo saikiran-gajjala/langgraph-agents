@@ -1,6 +1,6 @@
 .rcb-chat-header-container {
   background-image: none !important;
-  background-color: #13df68;
+  background-color: #e05b1d;
   direction: ltr;
   height: 2.6rem;
 }
@@ -57,7 +57,6 @@
   overflow: auto;
   min-width: 100%;
   max-width: 100%;
-  resize: horizontal;
   direction: rtl;
 }
 
