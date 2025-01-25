@@ -46,7 +46,7 @@ except Exception as e:
 
 app = FastAPI()
 
-origins = ["http://localhost:4200", "http://localhost:3005"]
+origins = ["*"]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,

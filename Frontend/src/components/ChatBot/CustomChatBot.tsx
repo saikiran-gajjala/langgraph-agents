@@ -139,7 +139,7 @@ const CustomChatBot = () => {
     },
     tooltip: {
       mode: "ALWAYS",
-      text: "Chat with the file analyzer bot"
+      text: "Talk to the Chatbot"
     },
     header: {
       title: (
@@ -154,7 +154,7 @@ const CustomChatBot = () => {
             gap: "10px"
           }}>
           <img src={Chatbot} alt="Chabot Icon" height={32} />
-          File Analyzer
+          GenAI Chatbot
         </div>
       ),
       showAvatar: false,
