@@ -111,6 +111,7 @@ def generate_chart_based_on_query(state):
 
         try:
             # Execute the generated code to produce `fig`
+            # Todo: Run this code using sandbox tools like e2b(https://e2b.dev/)
             exec(generated_code, local_context, local_context)
             final_response_plot = local_context.get('fig')
             if not final_response_plot:

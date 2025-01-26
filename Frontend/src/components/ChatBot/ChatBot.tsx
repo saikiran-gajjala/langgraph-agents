@@ -3,7 +3,7 @@ import { useRef, useState } from "react";
 import ChatBot, { Button, Flow, Settings, Styles } from "react-chatbotify";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import Chatbot from "../../assets/images/Chatbot.png";
+import Chatbot from "../../assets/images/minion.png";
 import User from "../../assets/images/User.svg";
 import "./ChatBot.css";
 import Visualization from "./Visualization";
@@ -16,9 +16,9 @@ const ChatBotWrapper = () => {
   const [chartDesign, setChartDesign] = useState<{} | null>(null);
   const options: string[] = [
     "Get me the movies released in 2000 with rating greater than 8",
-    "Show me the top 5 movies with highest rating",
-    "Get me the movies directed by Christopher Nolan",
+    "Show me all the movies directed by Christopher Nolan",
     "Generate a bar chart of movie counts for each month in 2002",
+    "Show me the details of the movie Titanic by James Cameron",
   ];
 
   async function fetchResponse(
@@ -134,7 +134,7 @@ const ChatBotWrapper = () => {
         </div>
       ),
       path: "loop",
-      options: options,
+      options: [],
     },
     end: {
       message: "This conversation is closed. Thank you",
@@ -174,7 +174,7 @@ const ChatBotWrapper = () => {
           }}
         >
           <img src={Chatbot} alt="Chabot Icon" height={32} />
-          CineMate-AI
+          Movie AI Bot
         </div>
       ),
       showAvatar: false,
