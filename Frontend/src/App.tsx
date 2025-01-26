@@ -1,5 +1,5 @@
 import "./App.css";
-import CustomChatBot from "./components/ChatBot/CustomChatBot";
+import ChatBotWrapper from "./components/ChatBot/ChatBot";
 
 function App() {
   return (
@@ -8,7 +8,7 @@ function App() {
         className="container"
       >
         <div  className="chatbot-component">
-          <CustomChatBot />
+          <ChatBotWrapper />
         </div>
       </div>
     </>

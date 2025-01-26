@@ -1,12 +1,11 @@
 from workflowManager import WorkflowManager
-from fastapi import FastAPI, File, Form, HTTPException
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from models.models import Query, QueryResponse
 from langchain.globals import set_debug, set_verbose
 from llmManager import LLMManager
 from agents.logger import setup_logger
-import getpass
 import os
 
 logger = setup_logger(__name__)
@@ -16,15 +15,6 @@ if os.getenv("ENABLE_DEBUGGING") == "true":
 else:
     set_verbose(True)
 
-
-def _set_if_undefined(var: str):
-    if not os.environ.get(var):
-        os.environ[var] = getpass.getpass(f"Please provide your {var}")
-
-
-_set_if_undefined("GROQ_API_KEY")
-
-# Initialize managers
 try:
     logger.info("Initializing managers")
     llm_manager = LLMManager()
@@ -33,15 +23,6 @@ try:
     logger.info("Managers initialized successfully")
 except Exception as e:
     logger.error(f"Error initializing managers: {e}")
-    raise
-
-# Create workflow with managers
-try:
-    logger.info("Generating workflow graph")
-    graph = workflow_manager.generate_graph()
-    logger.info("Workflow graph generated successfully")
-except Exception as e:
-    logger.error(f"Error generating workflow graph: {e}")
     raise
 
 app = FastAPI()
@@ -58,27 +39,33 @@ app.add_middleware(
 
 @app.get("/")
 async def redirect_root_to_docs():
+    """
+    Asynchronously redirects the root URL to the documentation page.
+
+    Returns:
+        RedirectResponse: A response object that redirects to the "/docs" URL.
+    """
     return RedirectResponse("/docs")
 
 
 @app.post("/query")
 async def runQuery(query: Query) -> QueryResponse:
+    """
+    Asynchronously processes a query and returns a response.
+
+    Args:
+        query (Query): The query object containing the query string.
+
+    Returns:
+        QueryResponse: The response object containing the answer and chart.
+
+    Raises:
+        HTTPException: If an error occurs while processing the query, an HTTP 500 error is raised with the error details.
+    """
     try:
         logger.info(f"Processing query: {query.query}")
-        response = []
-        finalResponse = QueryResponse(answer='', chart='', reviewImage=None)
-        config = {"configurable": {"thread_id": "1"}, "recursion_limit": 100}
-        input = {"question": query.query}
-        for stream_data in graph.stream(input, config):
-            if "__end__" not in stream_data:
-                response.append(stream_data)
-                node_response = (
-                    stream_data.get('text2NoSql_node')
-                )
-                finalResponse.answer = node_response.get('answer')
-
-        if finalResponse.answer == '' and finalResponse.chart == '':
-            finalResponse.answer = "Unable to process the query. Could you provide more information?"
+        finalResponse = QueryResponse(answer='', chart='')
+        finalResponse = workflow_manager.invoke(query.query)
         logger.info(f"Query processed successfully: {finalResponse.answer}")
         return finalResponse
     except Exception as e:
@@ -87,7 +74,7 @@ async def runQuery(query: Query) -> QueryResponse:
 
 if __name__ == "__main__":
     try:
-        logger.info("Starting the application")
+        logger.info("Starting the GenAI Langgraph application")
         import uvicorn
         uvicorn.run(app, host="0.0.0.0", port=8001)
     except Exception as e:

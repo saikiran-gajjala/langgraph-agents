@@ -11,3 +11,4 @@ class MultiAgentState(AgentState):
     answer: str
     rephrasedQuestion: Optional[str]
     mongoQueryResult: Optional[list]
+    chart: Optional[str]
