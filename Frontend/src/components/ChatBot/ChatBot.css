@@ -1,6 +1,6 @@
 .rcb-chat-header-container {
   background-image: none !important;
-  background-color: #e05b1d;
+  background-color: #1ecabc;
   direction: ltr;
   height: 2.6rem;
 }
@@ -67,9 +67,12 @@
 
 .rcb-bot-message,
 .rcb-user-message {
-  font-size: 12px !important;
+  font-size: 13px !important;
 }
 
+.rcb-options {
+  font-size: 11px !important;
+}
 .rcb-chat-body-container {
   display: flex;
   flex-direction: column;
