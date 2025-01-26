@@ -48,3 +48,11 @@ export default tseslint.config({
   },
 })
 ```
+
+## Setting up environment variables
+
+Create an `.env` file with the following environment variable:
+
+```
+VITE_CHAT_API_URL="http://localhost:8001"
+```

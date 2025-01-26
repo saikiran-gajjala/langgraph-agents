@@ -76,7 +76,7 @@ python_code_generation_prompt = """
             5. If the user query does not specify a plot type, analyze the query and data and choose the best-fitting plot type.
             6. **Convert any `Period` types to strings** before creating the plot to avoid serialization issues.
             7. Generates the plot based on the user query and **returns the plot object (`fig`)**. Do not save the plot to a file or display it.
-            8. Always generate the charts in white mode for better visualization unless specified by the user otherwise. Must use layout i.e template='ggplot2 
+            8. Always generate the charts in dark mode for better visualization unless specified by the user otherwise. Must use layout i.e template='plotly_dark' for dark mode. 
             9. Automatically calls the `generate_plot(data)` function after defining it, passing the `data` argument to it. **Don't fill `data` argument with any sample value. Just pass it as it is**
             10. Stores the generated plot object with name `fig`
             11. Always include necessary imports at the beginning of the code.

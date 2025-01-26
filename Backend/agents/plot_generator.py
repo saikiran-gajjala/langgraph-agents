@@ -81,10 +81,7 @@ def generate_chart_based_on_query(state):
     """
     try:
         retrieved_data = state['mongoQueryResult']
-        # Extract relevant information from the data (e.g., column names, a sample record, and count)
-        # Get the column names from the first document
         column_names = list(retrieved_data[0].keys())
-        # Count the number of rows/documents
         number_of_rows = len(retrieved_data)
         id = "_id"
         for record in retrieved_data:
@@ -108,23 +105,19 @@ def generate_chart_based_on_query(state):
         generated_code = re.sub(r'```python|```', '',
                                 code_response['text']).strip()
 
-        # Step 6: Display the generated code (optional for debugging)
         logger.info(f"Generated Python Code:\n{generated_code}")
 
-        # Pass the data into the local context
         local_context = {"data": retrieved_data}
 
         try:
             # Execute the generated code to produce `fig`
+            # Todo: Run this code using sandbox tools like e2b(https://e2b.dev/)
             exec(generated_code, local_context, local_context)
-
-            # Retrieve the plot if it exists
             final_response_plot = local_context.get('fig')
             if not final_response_plot:
                 logger.error("No plot was generated.")
                 return {"chart": None}
 
-            # Convert the plot to JSON
             chart_response = final_response_plot.to_json()
             logger.info(f'Final response plot: {chart_response}')
             return {"chart": chart_response}

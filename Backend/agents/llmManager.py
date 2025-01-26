@@ -1,7 +1,6 @@
-from langchain_core.prompts import ChatPromptTemplate
 from agents.logger import setup_logger
 from langchain_groq import ChatGroq
-from langchain_openai import AzureChatOpenAI, ChatOpenAI
+from langchain_openai import ChatOpenAI
 import os
 import getpass
 
@@ -21,30 +20,20 @@ class LLMManager:
             #     streaming=True,
             #     verbose=True,
             # )
-            # self.llm = ChatOpenAI(
-            #         temperature=0,
-            #         model="gpt-4o-mini",
-            #         max_tokens=None,
-            #         timeout=None,
-            #         max_retries=2,
-            #     )
-            self.llm = AzureChatOpenAI(
+            self.llm = ChatOpenAI(
                     temperature=0,
-                    azure_deployment=os.getenv('OPENAI_DEPLOYMENT_NAME'),
-                    azure_endpoint=os.getenv('OPENAI_DEPLOYMENT_ENDPOINT'),
-                    api_key=os.getenv('OPENAI_API_KEY'),
-                    api_version=os.getenv('OPENAI_DEPLOYMENT_VERSION'),
-                    streaming=True
+                    model="gpt-4o",
+                    max_tokens=None,
+                    timeout=None,
+                    max_retries=2,
                 )
-            self.slm = AzureChatOpenAI(
-                temperature=0,
-                azure_deployment=os.getenv(
-                    'OPENAI_DEPLOYMENT_NAME_FOR_ROUTER'),
-                azure_endpoint=os.getenv('OPENAI_DEPLOYMENT_ENDPOINT'),
-                api_key=os.getenv('OPENAI_API_KEY'),
-                api_version=os.getenv('OPENAI_DEPLOYMENT_VERSION_FOR_ROUTER'),
-                streaming=False
-            )
+            self.slm = ChatOpenAI(
+                    temperature=0,
+                    model="gpt-4o-mini",
+                    max_tokens=None,
+                    timeout=None,
+                    max_retries=2,
+                )
             logger.info("LLMManager initialized successfully")
         except Exception as e:
             logger.error(f"Error initializing LLMManager: {e}")

@@ -79,16 +79,8 @@ movies_mongodb_prompt = """You are an intelligent AI assistant who is expert in 
     - Always exclude or project redundant fields by using $project stage in the pipeline and only include the required fields, fields in $match stage
     - If the user question requests a count of matching documents, use the $count stage appropriately.
     - Always limit the number of documents returned in the query to 20 using the $limit stage.
+    - If the provided context is insufficient or no requested data, ask clarifying questions to gather more information.
     """
-
-
-# def get_movies_collection_prompt():
-#     query_with_prompt_template = PromptTemplate(
-#         template=movies_mongodb_prompt,
-#         input_variables=["user_question", "movies_collection_schema"]
-#     ).partial(present_date=datetime.now())
-#     return query_with_prompt_template
-
 
 def get_movies_collection_prompt():
     prompt = ChatPromptTemplate.from_messages(
@@ -112,6 +104,7 @@ def get_text2nosql_prompt():
                     - Media: Embed images, links, or URLs as appropriate for clarity.
                     - etc.
                     Ensure a concise, accurate response.
+                    If the provided context is insufficient or no requested data, ask clarifying questions to gather more information.
                     The current date is {present_date}.
                 """,
             ),

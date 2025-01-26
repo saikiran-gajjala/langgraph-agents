@@ -37,25 +37,3 @@ def get_router_prompt():
         ]
     ).partial(options=str(options), members=", ".join(members))
     return prompt
-
-# def get_router_prompt():
-#     router_with_prompt_template = PromptTemplate(
-#         template=system_router_prompt,
-#         input_variables=["question", "router_chat_history"]
-#     ).partial()
-#     return router_with_prompt_template
-
-# def get_router_prompt():
-#     prompt = ChatPromptTemplate.from_messages(
-#         [
-#              ("user", "{question}"),
-#             ("assistant", system_router_prompt),
-           
-#             # (
-#             #     "assistant",
-#             #     "Given the conversation above, who should act next?"
-#             #     " Or should we FINISH? Select one of: {options}",
-#             # ),
-#         ]
-#         ).partial(options=str(options), members=", ".join(members))
-#     return prompt
