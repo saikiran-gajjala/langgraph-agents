@@ -174,7 +174,7 @@ const ChatBotWrapper = () => {
           }}
         >
           <img src={Chatbot} alt="Chabot Icon" height={32} />
-          Movie Mate
+          CineMate-AI
         </div>
       ),
       showAvatar: false,
