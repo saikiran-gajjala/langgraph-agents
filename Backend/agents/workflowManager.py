@@ -211,7 +211,7 @@ class WorkflowManager:
             "router_node",
             self._route_question,
             {
-                'Movies': 'text2NoSql_node',
+                'QnA': 'text2NoSql_node',
                 'Visualization': 'visualization_node',
                 'NoContext': 'no_context_node'
             }
