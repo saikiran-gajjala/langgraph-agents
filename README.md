@@ -2,6 +2,9 @@
 ## Project Description:
  Movie AI Bot Generative AI application is designed to help to explore and analyze movie-related information effortlessly. It answers questions in natural language by retrieving data from the MongoDB Atlas Mflix database and dynamically generates visualizations or charts based on the data. The application combines a React-based front end with a Python-powered backend built using Langchain and LangGraph. By leveraging LangGraph and an Agentic RAG (Retrieval-Augmented Generation) approach, it efficiently fetches and processes data from the MongoDB database to deliver insightful responses and interactive visualizations.
 
+![thumbnail](https://github.com/user-attachments/assets/94985252-89d6-4d14-aedb-17beb8e76a75)
+
+
 ## Running the Frontend and Backend Projects
 
 ### Prerequisites
