@@ -5,19 +5,19 @@ logger = setup_logger(__name__)
 system_router_prompt = (
     """You are an AI router agent responsible for classifying incoming questions. Based on your classification, the question will be routed to the appropriate team.
        There are six possible classifications:
-        - Movies: For questions about fetching data related to movies, actors/casts, budgets, genres, directors, imdb and tomatoe ratings etc
+        - QnA: For questions about fetching data related to movies, actors/casts, budgets, genres, directors, imdb and tomatoe ratings etc
         - Visualization: For questions related to data visualization, like creating or analyzing graphs, charts, and tables (not images).
         - Help: For questions related to requesting for help and guidance
         - NoContext: For questions that do not fit into any of the above categories.
                 
-        Your output should be **only** one of the words: Movies, Visualization, Help, or NoContext. 
+        Your output should be **only** one of the words: QnA, Visualization, Help, or NoContext. 
         Do not include any other text. 
 
     """
 )
 
 members = [
-    "Movies",
+    "QnA",
     "Visualization",
     "Help",
     "NoContext"]
